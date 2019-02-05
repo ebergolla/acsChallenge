@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" >
+    <style>
+        .active{
+            background-color: rgba(0, 0, 0, 0.075);
+        }
+        #tablelabs > tbody > tr{
+            cursor: pointer;
+        }
+
+        #tableTest{
+
+        }
+        .test-container{
+            margin-top: 50px;
+            display: none;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div style="margin-top: 10px" class="row">
+        <div class="col-lg-6">
+            <h2>List of Panels</h2>
+        </div>
+        <div class="col-lg-6" style="text-align: right">
+            <h3><a href="#" data-toggle="modal" data-target="#recommendationsModal">Recommendations</a></h3>
+        </div>
+        <div class="modal fade" id="recommendationsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Recommendations</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul>
+                            <li > I would include a function that giving a panel_id returns all tests associates to it.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <table class="table table-hover" id="tablelabs">
+            <thead>
+            <tr>
+                <th scope="col">id</th>
+                <th scope="col">name</th>
+                <th scope="col">alias</th>
+                <th scope="col">abbreviation</th>
+                <th scope="col">identifier</th>
+                <th scope="col">description</th>
+                <th scope="col">created_at</th>
+                <th scope="col">updated_at</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+    <div class="test-container">
+        <h2> Tests of the Panel: <span id="paneltext"></span></h2>
+        <table class="table" id="tableTest">
+            <thead>
+            <tr>
+                <th scope="col">id</th>
+                <th scope="col">name</th>
+                <th scope="col">alias</th>
+                <th scope="col">abbreviation</th>
+                <th scope="col">identifier</th>
+                <th scope="col">low_value</th>
+                <th scope="col">high_value</th>
+                <th scope="col">created_at</th>
+                <th scope="col">updated_at</th>
+            </tr>
+
+            </thead>
+            <tbody>
+
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    var labData = [];
+    var testData = []
+    $(document).ready(function () {
+
+        $.ajax({
+            url: 'http://challenge.acslabtest.com/api/lab/panels',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                labData = data;
+
+                $.each(labData, function (index, value) {
+                    var tr = $('<tr>');
+                    tr.click(function (e) {
+                        $("tr").removeClass("active")
+                        $(this).addClass('active');
+                        fill_testtable(value.id, value.name);
+                    })
+                    tr.append($('<td>').text(value.id));
+
+                    tr.append($('<td>').text(value.name));
+                    tr.append($('<td>').text(value.alias));
+                    tr.append($('<td>').text(value.abbreviation));
+                    tr.append($('<td>').text(value.identifier));
+                    tr.append($('<td>').text(value.description));
+                    tr.append($('<td>').text(value.created_at));
+                    tr.append($('<td>').text(value.updated_at));
+
+                    $("#tablelabs").append(tr);
+
+                })
+
+            }
+        })
+        $.ajax({
+            url: 'http://challenge.acslabtest.com/api/lab/tests',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                testData = data;
+
+            }
+        })
+    })
+
+    function fill_testtable(panel_id, panel_name) {
+
+        $.ajax({
+            url: 'http://challenge.acslabtest.com/api/lab/tests',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                testData = data;
+                $("#tableTest > tbody").html("");
+                $.each(testData, function (index, value) {
+
+                    if (panel_id == value.panel_id) {
+                        var tr = $('<tr>');
+                        tr.append($('<td>').text(value.id));
+
+                        tr.append($('<td>').text(value.name));
+                        tr.append($('<td>').text(value.alias));
+                        tr.append($('<td>').text(value.abbreviation));
+                        tr.append($('<td>').text(value.identifier));
+                        tr.append($('<td>').text(value.low_value));
+                        tr.append($('<td>').text(value.high_value));
+                        tr.append($('<td>').text(value.created_at));
+                        tr.append($('<td>').text(value.updated_at));
+                        $("#tableTest").append(tr);
+                        $(".test-container").show();
+                        $("#paneltext").text(panel_name);
+
+                    }
+
+
+                })
+
+            }
+        })
+
+
+    }
+
+
+</script>
+
+</body>
+</html>
